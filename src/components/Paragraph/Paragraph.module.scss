@@ -1,6 +1,20 @@
-.paragraph {
+.paragraphHeader {
   color: white;
-  padding: 15px 0 30px 0;
+  padding: 15px 50px 30px 0;
+  font-size: 20px;
+  line-height: 1.55;
+}
+
+.paragraphFooter {
+  color: white;
+  padding: 5px 0 10px 0;
+  font-size: 30px;
+  line-height: 1.55;
+}
+
+.paragraphBtnFooter {
+  color: white;
+  padding: 50px 50px 0px 5px;
   font-size: 20px;
   line-height: 1.55;
 }
