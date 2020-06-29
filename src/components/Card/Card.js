@@ -62,7 +62,7 @@ export default class Card extends Component {
         className={cardClass}
       >
         <BtnBlock 
-          onDelCard={() => onDelCard(id)}
+          onDelCard={() => onDelCard({id, rus, eng})}
           onFixDoneCard={this.onFixDoneCard}
           fixedCard={fixedCard}
         />

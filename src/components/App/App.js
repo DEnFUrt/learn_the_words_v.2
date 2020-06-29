@@ -6,6 +6,8 @@ import {wordsList} from '../wordsList';
 import Copyright from '../Copyright'
 import NavBlock from '../NavBlock/NavBlock';
 import ErrorMessage from '../errorMessage';
+import NoMatchPage from '../NoMatchPage';
+import NoteWidget from '../NoteWidget';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 
 import SendNotification from '../service';
@@ -28,12 +30,24 @@ export default class App extends Component {
     this.onDelCard = this.onDelCard.bind(this);
   }
 
-  componentDidCatch(error) {
+  componentDidCatch(err) {
+    this.onError(err);
+  }
+  
+  onSendNote(title, options) {
+    if (this.noteService.canIsUse()) {
+      this.noteService.send(title, options);
+    } else {
+      console.log(options.body);
+    }
+  }
+
+  onError(err) {
     this.setState(({error, errorMessage}) => ({
-        error: true,
-        errorMessage: error.message
+      error: true,
+      errorMessage: err.message,
     }));
-}
+  }
 
   onSetState(newCards) {
     this.setState(({ cards }) => ({ cards: newCards }),
@@ -44,9 +58,16 @@ export default class App extends Component {
     const oldCards = this.state.cards;
     const newCards = oldCards.map(
       item => item.id === card.id ? card : item
-      );
+    );
 
     this.onSetState(newCards);
+    
+    if (card.fixDone) {
+        this.onSendNote('Запоминание карточки', {
+        body: `Карточка <${card.eng}/${card.rus}> запомнена и зафиксирована!`,
+        dir: 'auto',
+      });
+    }
   }
 
   addCard(card) {
@@ -54,19 +75,21 @@ export default class App extends Component {
     const newCards = [...oldCards, card];
 
     this.onSetState(newCards);
-    this.noteService.send('Добавление карточки', {
-      body: 'Карточка добавлена успешно!',
+    
+    this.onSendNote('Добавление карточки', {
+      body: `Карточка <${card.eng}/${card.rus}> добавлена успешно!`,
       dir: 'auto',
     });
   }
 
-  onDelCard(id) {
+  onDelCard({id, rus, eng}) {
     const oldCards = this.state.cards;
     const newCards = oldCards.filter(card => card.id !== id);
     
     this.onSetState(newCards);
-    this.noteService.send('Удаление карточки', {
-      body: 'Карточка удалена успешно!',
+    
+    this.onSendNote('Удаление карточки', {
+      body: `Карточка <${eng}/${rus}> удалена успешно!`,
       dir: 'auto',
     });
   }
@@ -74,14 +97,20 @@ export default class App extends Component {
   saveToLocalStorage(cards) {
     try {
       localStorage.setItem('wordsList', JSON.stringify(cards));
-    } catch (e) {
-        alert('Ошибка записи, последние изменения не сохранились! ', e.message);
+    } catch(e) {
+      this.onError(e);
     }
   }
 
   readFromLocalStorage() {
-    const cards = JSON.parse(localStorage.getItem('wordsList')) || [];
-    return  cards.length !== 0 ? cards : wordsList;
+    let cards = [];
+    try {
+      cards = JSON.parse(localStorage.getItem('wordsList')) || [];
+    } catch(e) {
+      cards = [];
+    } finally {
+      return  cards.length !== 0 ? cards : wordsList;
+    }
   }
 
   addData(cards) {
@@ -102,12 +131,11 @@ export default class App extends Component {
 
   componentDidMount() {
     const cards = this.addData(this.readFromLocalStorage());
-
     this.setState({cards});
   }
 
   render() {
-    const {cards, error, errorMessage} = this.state;
+    const {cards, error, errorMessage} = this.state; 
 
     if (error) {
       return (
@@ -119,26 +147,26 @@ export default class App extends Component {
       <Router>
         <NavBlock />
         <Switch>
-        <Route path="/" exact> 
-          <HeaderBlock /> 
-        </Route> 
-        <Route path="/cardholder" exact>
-          <CardHolder
-            wordsList={cards}
-            onChangeCard = {this.onChangeCard}
-            onDelCard = {this.onDelCard}
-            onFixDoneCard = {this.onChangeCard}
-          />
-        </Route>
-        <Route path="/footerblock" exact>
-          <FooterBlock
-            onAddCard = {this.addCard}
-          />
-        </Route>
-        <Route component={HeaderBlock} />
+          <Route path="/" exact> 
+            <HeaderBlock /> 
+          </Route> 
+          <Route path="/cardholder" exact>
+            <CardHolder
+              wordsList={cards}
+              onChangeCard = {this.onChangeCard}
+              onDelCard = {this.onDelCard}
+              onFixDoneCard = {this.onChangeCard}
+            />
+          </Route>
+          <Route path="/footerblock" exact>
+            <FooterBlock
+              onAddCard = {this.addCard}
+            />
+          </Route>
+          <Route component={NoMatchPage} />
         </Switch>
-        
         <Copyright />
+        {/* <NoteWidget /> */}
       </Router>
     );
   }

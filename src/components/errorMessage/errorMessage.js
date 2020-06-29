@@ -1,11 +1,12 @@
 import React from 'react';
 
+import s from './errorMessage.module.scss';
+
 const ErrorMessage = ({message}) => {
   return (
-    <>
-      <img src={process.env.PUBLIC_URL + '/disconnect.jpg'}></img>
-      <span>Ошибка загрузки: {message}</span>
-    </>
+    <div className={s.errorMessage}>
+      <span className={s.message}>Обнаружена ошибка: {message}</span>
+    </div>
   );
 }
 

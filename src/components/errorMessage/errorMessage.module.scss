@@ -1,4 +1,4 @@
-.cover {
+.errorMessage {
   $height: 100vh;
   $width: 100%;
 
@@ -16,7 +16,7 @@
   background-position: center center;
   background-attachment: fixed;
   background-color: #000;
-  background-image: url(./img/footerBlock.jpg);
+  background-image: url(./img/disconnect.jpg);
   
 
   &:after {
@@ -30,9 +30,12 @@
     background-image: linear-gradient(to top, rgba(26,40,120,.7), rgba(26,40,120,.7));
   }
 
-  .wrap {
+  .message {
     position: relative;
     z-index: 1;
+    width: 50%;
+    color: #ffffff;
+    font-size: 1.5rem;
+    word-wrap: normal;
   }
 }
-
