@@ -25,6 +25,7 @@ export default class App extends Component {
       errorMessage: null,
     }
 
+    this.noteWidget = React.createRef();
     this.addCard = this.addCard.bind(this);
     this.onChangeCard = this.onChangeCard.bind(this);
     this.onDelCard = this.onDelCard.bind(this);
@@ -38,7 +39,8 @@ export default class App extends Component {
     if (this.noteService.canIsUse()) {
       this.noteService.send(title, options);
     } else {
-      console.log(options.body);
+      this.noteWidget.current.onToggleShow(options.body);
+      setTimeout(this.noteWidget.current.onToggleHide, 2000);
     }
   }
 
@@ -165,8 +167,9 @@ export default class App extends Component {
           </Route>
           <Route component={NoMatchPage} />
         </Switch>
-        <Copyright />
-        {/* <NoteWidget /> */}
+        <Copyright>
+          <NoteWidget ref = {this.noteWidget} />
+        </Copyright>
       </Router>
     );
   }
